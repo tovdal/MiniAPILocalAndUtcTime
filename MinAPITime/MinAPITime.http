@@ -1,0 +1,6 @@
+@MinAPITime_HostAddress = http://localhost:5078
+
+GET {{MinAPITime_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
