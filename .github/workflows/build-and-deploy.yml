@@ -8,7 +8,6 @@ on:
 
 env:
   AZURE_WEBAPP_NAME: time-service-youtube
-  AZURE_WEBAPP_PACKAGE_PATH: ".publish"
   DOTNET_VERSION: "9.x"
   SOLUTION_PATH: "MinAPITime.sln"
   API_PROJECT_PATH: "MinAPITime"
@@ -20,7 +19,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -37,13 +37,13 @@ jobs:
         run: dotnet test ${{ env.SOLUTION_PATH }} --configuration Release --no-restore --no-build --verbosity normal
 
       - name: Publish
-        run: dotnet publish ${{ env.API_PROJECT_PATH }} --configuration Release --no-restore --no-build --property:PublishDir=${{ env.PUBLISH_DIR }}
+        run: dotnet publish ${{ env.API_PROJECT_PATH }} --configuration Release --no-restore --no-build --output ${{ env.PUBLISH_DIR }}
 
-      - name: Publish Artifacts
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: webapp
-          path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          path: ${{ env.PUBLISH_DIR }}
 
   deploy:
     name: Deploy to Azure
@@ -51,15 +51,15 @@ jobs:
     needs: [build-and-test]
 
     steps:
-      - name: Download artifact from build job
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: webapp
-          path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          path: ${{ env.PUBLISH_DIR }}
 
-      - name: Deploy
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
+          package: ${{ env.PUBLISH_DIR }}
