@@ -8,7 +8,7 @@ on:
 
 env:
   AZURE_WEBAPP_NAME: time-service-youtube
-  AZURE_WEBAPP_PACKAGE_PATH: "./MinAPITime/publish"
+  AZURE_WEBAPP_PACKAGE_PATH: ".publish"
   DOTNET_VERSION: "9.x"
   SOLUTION_PATH: "MinAPITime.sln"
   API_PROJECT_PATH: "MinAPITime"
